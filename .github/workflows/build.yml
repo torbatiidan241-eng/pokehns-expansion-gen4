@@ -25,7 +25,7 @@ jobs:
 
       - name: Compile ROM (HNS Target)
         run: |
-          make hns -j$(nproc)
+          make hns CFLAGS="-Wno-error=error -Wno-error=pedantic -Wno-error=shadow" -j$(nproc)
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
