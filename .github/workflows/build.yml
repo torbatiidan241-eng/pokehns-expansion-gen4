@@ -14,15 +14,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
+      - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libgmp-dev pkg-config git python3
+          sudo apt-get install -y build-essential libgmp-dev libpng-dev pkg-config git python3 zlib1g-dev
 
-      - name: Build DevkitARM / Toolchain
+      - name: Install DevkitARM / ARM Toolchain
         run: |
-          # The make tools process or pre-built toolchain steps will execute here
-          make tools
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi
 
       - name: Compile ROM (HNS Target)
         run: |
