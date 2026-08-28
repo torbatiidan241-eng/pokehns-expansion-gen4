@@ -1,0 +1,66 @@
+name: Build ROM
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ubuntu:22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install System Dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update && apt-get install -y \
+            build-essential \
+            libgmp-dev \
+            libmpc-dev \
+            libssl-dev \
+            wget \
+            curl \
+            git \
+            zip \
+            unzip \
+            bzip2 \
+            pkg-config \
+            libpng-dev \
+            python3
+
+      - name: Install Toolchain Fallback
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi || true
+
+      - name: Set up Environment Variables
+        run: |
+          echo "DEVKITPRO=/opt/devkitpro" >> $GITHUB_ENV
+          echo "DEVKITARM=/opt/devkitpro/devkitARM" >> $GITHUB_ENV
+          echo "/opt/devkitpro/tools/bin" >> $GITHUB_PATH
+
+      - name: Verify Baserom
+        run: |
+          if [ ! -f "baserom.gba" ]; then
+            echo "Error: baserom.gba is missing from the root directory!"
+            exit 1
+          fi
+
+      - name: Build Modern ROM
+        run: |
+          make modern -j$(nproc) || make MODERN=1 -j$(nproc)
+
+      - name: Upload ROM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokehns-rom-artifact
+          path: |
+            *.gba
+            build/**/*.gba
