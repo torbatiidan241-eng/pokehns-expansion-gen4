@@ -2,65 +2,34 @@ name: Build ROM
 
 on:
   push:
-    branches: [ "*" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "*" ]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    container:
-      image: ubuntu:22.04
-
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install System Dependencies
+      - name: Install Dependencies
         run: |
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get update && apt-get install -y \
-            build-essential \
-            libgmp-dev \
-            libmpc-dev \
-            libssl-dev \
-            wget \
-            curl \
-            git \
-            zip \
-            unzip \
-            bzip2 \
-            pkg-config \
-            libpng-dev \
-            python3
+          sudo apt-get update
+          sudo apt-get install -y build-essential libgmp-dev pkg-config git python3
 
-      - name: Install Toolchain Fallback
+      - name: Build DevkitARM / Toolchain
         run: |
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi || true
+          # The make tools process or pre-built toolchain steps will execute here
+          make tools
 
-      - name: Set up Environment Variables
+      - name: Compile ROM (HNS Target)
         run: |
-          echo "DEVKITPRO=/opt/devkitpro" >> $GITHUB_ENV
-          echo "DEVKITARM=/opt/devkitpro/devkitARM" >> $GITHUB_ENV
-          echo "/opt/devkitpro/tools/bin" >> $GITHUB_PATH
+          make hns -j$(nproc)
 
-      - name: Verify Baserom
-        run: |
-          if [ ! -f "baserom.gba" ]; then
-            echo "Error: baserom.gba is missing from the root directory!"
-            exit 1
-          fi
-
-      - name: Build Modern ROM
-        run: |
-          make modern -j$(nproc) || make MODERN=1 -j$(nproc)
-
-      - name: Upload ROM Artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pokehns-rom-artifact
-          path: |
-            *.gba
-            build/**/*.gba
+          name: pokehns-rom
+          path: poke-hns.gba
