@@ -2318,3 +2318,6 @@ void CreateKurtBallShop(void)
     gTasks[taskId].func = Task_GoToBuyOrSellMenu;
     FadeScreen(FADE_TO_BLACK, 0);
 }
+extern u16 gSpecialVar_Result;
+extern u16 gSpecialVar_0x8004;
+extern u16 gSpecialVar_0x8005;

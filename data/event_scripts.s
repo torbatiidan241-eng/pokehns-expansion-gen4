@@ -2397,3 +2397,25 @@ EventScript_PalletTown_PlayersHouse_2F_TurnOnPC::
 	.include "data/maps/Akala_Cave_hns/scripts.inc"
 
 .endif
+
+.global GoldenrodCity_RadioTower_5F_EventScript_Petrel
+GoldenrodCity_RadioTower_5F_EventScript_Petrel:
+    release
+    end
+
+.global GoldenrodCity_GameCorner_PrizeRoom_Text_YouAlreadyHaveThis
+GoldenrodCity_GameCorner_PrizeRoom_Text_YouAlreadyHaveThis:
+    .string "You already have this.$"
+
+.global SinjohRuins_EventScript_StevenBattle
+SinjohRuins_EventScript_StevenBattle:
+    release
+    end
+
+.global SinjohRuins_Lab_Text_StevenCall3Plates
+SinjohRuins_Lab_Text_StevenCall3Plates:
+    .string "Steven: The plates are reacting...$"
+
+.global SinjohRuins_Lab_Text_StevenCall6Plates
+SinjohRuins_Lab_Text_StevenCall6Plates:
+    .string "Steven: Amazing energy signatures!$"

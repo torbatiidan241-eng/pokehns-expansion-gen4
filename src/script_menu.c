@@ -1427,3 +1427,17 @@ u16 GetSelectedSeagallopDestination(void)
     }
     return SEAGALLOP_VERMILION_CITY;
 }
+
+// Automated stubs for missing script specials
+void Special_BuenaPasswordShowMultichoice(void) {}
+void Special_BuenaCheckAnswer(void) {}
+void Special_BuenaRollReward(void) {}
+void Special_MomEnableSaving(void) {}
+void Special_MomDisableSaving(void) {}
+void Special_MomGetBalance(void) {}
+void Special_MomDeposit(void) {}
+void Special_MomWithdraw(void) {}
+void Special_MomIsSavingEnabled(void) {}
+void Special_MomEnsureInitialized(void) {}
+void Special_MomOpenDepositInput(void) {}
+void Special_MomOpenWithdrawInput(void) {}
