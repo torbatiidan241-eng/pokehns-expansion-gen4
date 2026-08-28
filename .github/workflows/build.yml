@@ -23,6 +23,31 @@ jobs:
         run: |
           sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi
 
+      - name: Fix Duplicate Map Section Declarations
+        run: |
+          python3 -c '
+          path = "include/constants/region_map_sections.h"
+          with open(path, "r", encoding="utf-8") as f:
+              lines = f.readlines()
+
+          seen = set()
+          new_lines = []
+          for line in lines:
+              stripped = line.strip()
+              skip = False
+              for name in ["MAPSEC_ROCKET_HIDEOUT_HNS", "MAPSEC_MT_SILVER", "MAPSEC_NEW_SINJOH"]:
+                  if stripped.startswith(name + ",") or stripped.startswith(name + " "):
+                      if name in seen:
+                          skip = True
+                      else:
+                          seen.add(name)
+              if not skip:
+                  new_lines.append(line)
+
+          with open(path, "w", encoding="utf-8") as f:
+              f.writelines(new_lines)
+          '
+
       - name: Compile ROM (HNS Target)
         run: |
           make hns CFLAGS="-Wno-error=error -Wno-error=pedantic -Wno-error=shadow" -j$(nproc)
