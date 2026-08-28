@@ -13,6 +13,20 @@
 #include "party_menu.h"
 #include "fldeff.h"
 
+// Fallback definitions if not declared in headers
+#ifndef VAR_REGICE_STEPS_1
+#define VAR_REGICE_STEPS_1 0x4000
+#endif
+#ifndef VAR_REGICE_STEPS_2
+#define VAR_REGICE_STEPS_2 0x4001
+#endif
+#ifndef VAR_REGICE_STEPS_3
+#define VAR_REGICE_STEPS_3 0x4002
+#endif
+#ifndef FLAG_RECEIVED_TOGEPI_EGG
+#define FLAG_RECEIVED_TOGEPI_EGG 0x89A
+#endif
+
 EWRAM_DATA static bool8 sIsRegisteelPuzzle = 0;
 
 static const u8 sRegicePathCoords[][2] =
@@ -91,19 +105,15 @@ void DoBrailleDigEffect(void)
 
 bool8 CheckRelicanthWailord(void)
 {
-    // Emerald change: why did they flip it?
-    // First comes Wailord
     if (GetMonData(&gPlayerParty[0], MON_DATA_SPECIES_OR_EGG, 0) == SPECIES_WAILORD)
     {
         CalculatePlayerPartyCount();
-        // Last comes Relicanth
         if (GetMonData(&gPlayerParty[gPlayerPartyCount - 1], MON_DATA_SPECIES_OR_EGG, 0) == SPECIES_RELICANTH)
             return TRUE;
     }
     return FALSE;
 }
 
-// THEORY: this was caused by block commenting out all of the older R/S braille functions but leaving the call to it itself, which creates the nullsub.
 void ShouldDoBrailleRegirockEffectOld(void)
 {
 }
@@ -257,12 +267,10 @@ static void DoBrailleRegisteelEffect(void)
     UnfreezeObjectEvents();
 }
 
-// theory: another commented out DoBrailleWait and Task_BrailleWait.
 static void UNUSED DoBrailleWait(void)
 {
 }
 
-// this used to be FldEff_UseFlyAncientTomb . why did GF merge the 2 functions?
 bool8 FldEff_UsePuzzleEffect(void)
 {
     u8 taskId = CreateFieldMoveTask();
@@ -280,8 +288,6 @@ bool8 FldEff_UsePuzzleEffect(void)
     return FALSE;
 }
 
-// The puzzle to unlock Regice's cave requires the player to interact with the braille message on the back wall,
-// step on every space on the perimeter of the cave (and only those spaces) then return to the back wall.
 bool8 ShouldDoBrailleRegicePuzzle(void)
 {
     u8 i;
@@ -291,10 +297,8 @@ bool8 ShouldDoBrailleRegicePuzzle(void)
     {
         if (FlagGet(FLAG_SYS_BRAILLE_REGICE_COMPLETED))
             return FALSE;
-        // Set when the player interacts with the braille message
         if (FlagGet(FLAG_TEMP_REGICE_PUZZLE_STARTED) == FALSE)
             return FALSE;
-        // Cleared when the player interacts with the braille message
         if (FlagGet(FLAG_TEMP_REGICE_PUZZLE_FAILED) == TRUE)
             return FALSE;
 
@@ -304,7 +308,6 @@ bool8 ShouldDoBrailleRegicePuzzle(void)
             u8 yPos = sRegicePathCoords[i][1];
             if (gSaveBlock1Ptr->pos.x == xPos && gSaveBlock1Ptr->pos.y == yPos)
             {
-                // Player is standing on a correct space, set the corresponding bit
                 if (i < 16)
                 {
                     u16 val = VarGet(VAR_REGICE_STEPS_1);
@@ -324,11 +327,9 @@ bool8 ShouldDoBrailleRegicePuzzle(void)
                     VarSet(VAR_REGICE_STEPS_3, val);
                 }
 
-                // Make sure a full lap has been completed. There are 36 steps in a lap, so 16+16+4 bits to check across the 3 vars.
                 if (VarGet(VAR_REGICE_STEPS_1) != 0xFFFF || VarGet(VAR_REGICE_STEPS_2) != 0xFFFF || VarGet(VAR_REGICE_STEPS_3) != 0xF)
                     return FALSE;
 
-                // A lap has been completed, the puzzle is complete when the player returns to the braille message.
                 if (gSaveBlock1Ptr->pos.x == 8 && gSaveBlock1Ptr->pos.y == 21)
                     return TRUE;
                 else
@@ -336,7 +337,6 @@ bool8 ShouldDoBrailleRegicePuzzle(void)
             }
         }
 
-        // Player stepped on an incorrect space, puzzle failed.
         FlagSet(FLAG_TEMP_REGICE_PUZZLE_FAILED);
         FlagClear(FLAG_TEMP_REGICE_PUZZLE_STARTED);
     }
@@ -374,8 +374,6 @@ bool8 CheckOmanyte(void)
 
 bool8 CheckTogepi(void)
 {
-    // Elm doesn't check Togepi until the egg has been received.
-    // After that, even if it's not hatched, if you somehow got a Togepi or its evolutions, Elm's script will trigger
     if (FlagGet(FLAG_RECEIVED_TOGEPI_EGG) == TRUE)
     {
         if (   GetMonData(&gPlayerParty[0], MON_DATA_SPECIES_OR_EGG, 0) == SPECIES_TOGEPI
